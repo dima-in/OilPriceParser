@@ -87,7 +87,6 @@ def get_prices():
     oil_name_prices = {}
     for url in urls:
         time.sleep(3)
-        #time.sleep(4)
         print(f' handmade url: {url_main}{url}')
         page = requests.get(f'{url_main}{url}', timeout=5, headers=headers_mozila)
         soup = BeautifulSoup(page.content, 'html.parser')
