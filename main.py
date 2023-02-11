@@ -1,12 +1,9 @@
 import pprint
 import time
-from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 from fastapi import FastAPI
-from sqlalchemy import create_engine, Column, Integer, Float, String, Date
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from Url import Base, engine, save_prices
 
 app = FastAPI()
 
@@ -37,24 +34,6 @@ def url_to_parse():
     return url_dict
 
 
-Base = declarative_base()
-
-
-class OilPrice(Base):
-    __tablename__ = 'oil_price'
-
-    id = Column(Integer, primary_key=True)
-    site = Column(String(100))
-    oil_name = Column(String(100))
-    price = Column(Float)
-    date = Column(Date)
-
-
-engine = create_engine('mysql+mysqlconnector://oilsquiser:oilsquiserpasswd@localhost/prices_parsinDB')
-Base.metadata.create_all(engine)
-
-Session = sessionmaker(bind=engine)
-session = Session()
 
 
 def get_prices():
@@ -71,8 +50,9 @@ def get_prices():
         'Accept-Language': 'en-US,en;q=0.5',
         'Connection': 'keep-alive'
     }
-    url_main = 'https://naturexpress.ru/'
-    page = requests.get(url_main, timeout=5, headers=headers_chrome)
+    prefix_url = 'https://naturexpress.ru/katalog-tovarov/produktyi/rastitelnyie-masla'
+    address_site = 'https://naturexpress.ru/'
+    page = requests.get(prefix_url, timeout=5, headers=headers_chrome)
     soup = BeautifulSoup(page.text, 'html.parser')
     links = soup.find_all('a')
     urls = []
@@ -87,24 +67,22 @@ def get_prices():
     oil_name_prices = {}
     for url in urls:
         time.sleep(3)
-        print(f' handmade url: {url_main}{url}')
-        page = requests.get(f'{url_main}{url}', timeout=5, headers=headers_mozila)
+        print(f' handmade url: {address_site}{url}')
+        page = requests.get(f'{address_site}{url}', timeout=5, headers=headers_mozila)
         soup = BeautifulSoup(page.content, 'html.parser')
         oil_name = soup.find('div', class_='title-h6').text.strip()
-        oil_name_prices[oil_name] = soup.find('div', class_="product-price-wrapper").find('span',itemprop="price").text.strip()
+        oil_name_prices[oil_name] = soup.find('div', class_="price").text.strip()
     pprint.pprint(oil_name_prices)
-    # save_prices(prices)
+    save_prices(oil_name_prices)
     return '\n'.join(f'{k}:{v}' for k, v in oil_name_prices.items())
-
-
-def save_prices(dict_prices):
-    for oil_name, price in dict_prices.items():
-        price = OilPrice(site='nature-express', oil_name=oil_name, price=price, date=datetime.now())
-        session.add(price)
-        session.commit()
 
 
 if __name__ == '__main__':
     import uvicorn
 
     uvicorn.run(app)
+"""
+https://naturexpress.ru/katalog-tovarov/produktyi/rastitelnyie-masla/amarantovoe-maslo-xolodnogo-otzhima-syirodavlennoe-50-ml
+https://naturexpress.ru/katalog-tovarov/produktyi/rastitelnyie-masla/maslo-chyornogo-tmina-250-ml
+https://naturexpress.ru/katalog-tovarov/produktyi/rastitelnyie-masla/maslo-chyornogo-tmina-250-ml
+"""
