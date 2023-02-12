@@ -1,9 +1,11 @@
 import pprint
 import time
+
 import requests
 from bs4 import BeautifulSoup
 from fastapi import FastAPI
-from Url import Base, engine, save_prices
+
+from BDalchemy import save_prices
 
 app = FastAPI()
 
@@ -32,8 +34,6 @@ def url_to_parse():
     url_dict = {key: url + addr for key, addr in address.items()}
     # print(f'это url_list: {url_dict[key]} ')
     return url_dict
-
-
 
 
 def get_prices():
@@ -66,12 +66,12 @@ def get_prices():
                 urls.append(link_filter)
     oil_name_prices = {}
     for url in urls:
-        time.sleep(3)
+        time.sleep(1)
         print(f' handmade url: {address_site}{url}')
         page = requests.get(f'{address_site}{url}', timeout=5, headers=headers_mozila)
         soup = BeautifulSoup(page.content, 'html.parser')
-        oil_name = soup.find('div', class_='title-h6').text.strip()
-        oil_name_prices[oil_name] = soup.find('div', class_="price").text.strip()
+        oil_name = soup.find('div', class_='title-h6').text.rstrip()
+        oil_name_prices[oil_name] = float(soup.find('div', class_="price").find().text.strip().replace(' ', '').replace('₽', ''))
     pprint.pprint(oil_name_prices)
     save_prices(oil_name_prices)
     return '\n'.join(f'{k}:{v}' for k, v in oil_name_prices.items())
@@ -79,8 +79,8 @@ def get_prices():
 
 if __name__ == '__main__':
     import uvicorn
-
     uvicorn.run(app)
+
 """
 https://naturexpress.ru/katalog-tovarov/produktyi/rastitelnyie-masla/amarantovoe-maslo-xolodnogo-otzhima-syirodavlennoe-50-ml
 https://naturexpress.ru/katalog-tovarov/produktyi/rastitelnyie-masla/maslo-chyornogo-tmina-250-ml
