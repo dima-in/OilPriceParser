@@ -25,3 +25,9 @@ def save_prices(dict_prices):
         price = OilPrice(site='nature-express', oil_name=oil_name, price=price, date=datetime.now())
         session.add(price)
         session.commit()
+
+
+def view_prices():
+    prices = session.query(OilPrice).all()
+    for item in prices:
+        print(item.price, item.oil_name, item.site)

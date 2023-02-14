@@ -1,39 +1,19 @@
 import pprint
 import time
-
 import requests
 from bs4 import BeautifulSoup
 from fastapi import FastAPI
-
-from BDalchemy import save_prices
-
+from BDalchemy import view_prices
 app = FastAPI()
 
 
 @app.get('/')
 def prices():
-    prices = get_prices()
-    return prices
+    return get_prices()
 
-
-def url_to_parse():
-    url = 'https://naturexpress.ru/katalog-tovarov/produktyi/rastitelnyie-masla/'
-    url2 = 'https://maslodel.zone/oblepihovoe_maslo'
-    address = {'tmin': 'maslo-chyornogo-tmina-250-ml',
-               'tikvennoe': 'tyikvennoe-maslo-250-ml',
-               'konoplyanoe': 'konoplyanoe-maslo-250-ml',
-               'lnyanoe': 'lnyanoe-maslo-xolodnogo-otzhima-syirodavlennoe-250-ml',
-               'greczkogo-orexa': 'maslo-greczkogo-orexa-xolodnogo-otzhima-syirodavlennoe-250-ml',
-               'rastoropshi': 'maslo-rastoropshi-xolodnogo-otzhima-syirodavlennoe-250-ml',
-               'kunzhutnoe': 'kunzhutnoe-maslo-xolodnogo-otzhima-syirodavlennoe-250-ml',
-               'podsolnechnoe': 'podsolnechnoe-maslo-xolodnogo-otzhima-syirodavlennoe-250-ml',
-               'gorchichnoe': 'gorchichnoe-maslo-xolodnogo-otzhima-syirodavlennoe-250-ml',
-               'kokosovoe': 'kokosovoe-maslo-xolodnogo-otzhima-syirodavlennoe-250-ml',
-               'oblepixovoe': 'oblepixovoe-maslo-xolodnogo-otzhima-syirodavlennoe-100-ml'}
-
-    url_dict = {key: url + addr for key, addr in address.items()}
-    # print(f'это url_list: {url_dict[key]} ')
-    return url_dict
+@app.get('/viewprices')
+def view():
+    return view_prices()
 
 
 def get_prices():
@@ -50,31 +30,42 @@ def get_prices():
         'Accept-Language': 'en-US,en;q=0.5',
         'Connection': 'keep-alive'
     }
-    prefix_url = 'https://naturexpress.ru/katalog-tovarov/produktyi/rastitelnyie-masla'
+    prefix_url = 'https://naturexpress.ru/katalog-tovarov/produktyi/rastitelnyie-masla/'
     address_site = 'https://naturexpress.ru/'
     page = requests.get(prefix_url, timeout=5, headers=headers_chrome)
     soup = BeautifulSoup(page.text, 'html.parser')
     links = soup.find_all('a')
     urls = []
     for link in links:
-        #time.sleep(4)
         link_str = str(link.get('href'))
         if link_str.endswith('-ml'):
-            if link_str not in urls:
-                link_filter = link_str
-                print(f'auto url https://{link_filter}')
-                urls.append(link_filter)
+            urls.append(link_str)
     oil_name_prices = {}
     for url in urls:
         time.sleep(1)
-        print(f' handmade url: {address_site}{url}')
         page = requests.get(f'{address_site}{url}', timeout=5, headers=headers_mozila)
         soup = BeautifulSoup(page.content, 'html.parser')
-        oil_name = soup.find('div', class_='title-h6').text.rstrip()
-        oil_name_prices[oil_name] = float(soup.find('div', class_="price").find().text.strip().replace(' ', '').replace('₽', ''))
-    pprint.pprint(oil_name_prices)
-    save_prices(oil_name_prices)
-    return '\n'.join(f'{k}:{v}' for k, v in oil_name_prices.items())
+        """
+        Если необходимо получать данные из списка продуктов,
+        не обращаясь к каждому продукту, использовать этот код:
+        a_absolute = soup.find("div", class_="col-xs-6 col-sm-4").find('a', class_='absolute', href=True)['href'].find('rastitelnyie-masla')
+        print(a_absolute)
+        if a_absolute > 0:
+            oil_name = soup.find("div", class_="col-xs-6 col-sm-4").find('div', class_='title-h6').text.rstrip()
+            oil_name_prices[oil_name] = float(soup.find("div", class_="col-xs-6 col-sm-4").find('div', class_='price').text.strip().replace(' ', '').replace('₽', ''))
+            pprint.pprint(f'{url} | {oil_name} | {oil_name_prices[oil_name]}')
+        else:
+        """
+        oil_name = soup.find('h1', class_="pagetitle", itemprop="name").text.strip()
+        oir_price = soup.find('div', class_="product-price-wrapper").find('span', class_="",  itemprop='price').text.rstrip().replace(' ₽', '')
+        oil_name_prices[oil_name] = oir_price
+        #pprint.pprint(f'{url} | {oil_name} | {oil_name_prices[oil_name]}')
+    if len(urls) == len(oil_name_prices):
+        print('количество ссылок равно количеству запросов')
+    else:
+        print('Количество ссылок не равно количеству запросов')
+    #save_prices(oil_name_prices)
+    #return '\n'.join(f'{k}:{v}' for k, v in oil_name_prices.items())
 
 
 if __name__ == '__main__':
