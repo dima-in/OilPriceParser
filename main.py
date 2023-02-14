@@ -4,6 +4,8 @@ import requests
 from bs4 import BeautifulSoup
 from fastapi import FastAPI
 from BDalchemy import view_prices
+
+
 app = FastAPI()
 
 

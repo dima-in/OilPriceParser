@@ -27,7 +27,20 @@ def save_prices(dict_prices):
         session.commit()
 
 
-def view_prices():
-    prices = session.query(OilPrice).all()
-    for item in prices:
-        print(item.price, item.oil_name, item.site)
+def view_prices(site=None, oil_name=None, price=None, max_price=None, start_date=None, end_date=None):
+    filtered_query = session.query(OilPrice)
+    if site:
+        self_query = filtered_query.filter(OilPrice.site == site)
+    if oil_name:
+        self_query = filtered_query.filter(OilPrice.oil_name == oil_name)
+    if price:
+        self_query = filtered_query.filter(OilPrice.price == price)
+    if max_price:
+        self_query = filtered_query.filter(OilPrice.price <= max_price)
+    if start_date:
+        self_query = filtered_query.filter(OilPrice.date >= start_date)
+    if end_date:
+        self_query = filtered_query.filter(OilPrice.date <= end_date)
+    return self_query.all()
+
+
