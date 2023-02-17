@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Oil Prices</title>
+</head>
+<body>
+    <form method="post" action="/viewprices">
+        <label for="site">Сайт:</label>
+        <input type="text" name="site" id="site">
+        <br>
+        <label for="oil_name">Название масла:</label>
+        <input type="text" name="oil_name" id="oil_name">
+        <br>
+        <label for="price">Цена:</label>
+        <input type="number" name="price" id="price" min="0">
+        <br>
+        <label for="max_price">Максимальная цена:</label>
+        <input type="number" name="max_price" id="max_price" min="0">
+        <br>
+        <label for="start_date">Начальная дата:</label>
+        <input type="date" name="start_date" id="start_date">
+        <br>
+        <label for="end_date">Конечная дата:</label>
+        <input type="date" name="end_date" id="end_date">
+        <br>
+        <button type="submit">Найти</button>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Сайт</th>
+                <th>Название масла</th>
+                <th>Цена</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for price in prices %}
+            <tr>
+                <td>{{ price.site }}</td>
+                <td>{{ price.oil_name }}</td>
+                <td>{{ price.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
