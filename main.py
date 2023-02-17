@@ -24,10 +24,7 @@ def prices():
 @app.get('/entry', response_class=HTMLResponse)
 async def view(request: Request):
     """
-    Начальная страица.
-    API endpoint для получения сохраненных цен на масла.
-    response_class=HTMLResponse указывает,
-    что возвращаемое значение - HTML-страница
+    entry() - обработчик GET-запроса для вывода начального шаблона
     """
     context = {"request": request, 'title': "Начальная страница"}
     return templates.TemplateResponse('entry.html', context)
