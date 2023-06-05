@@ -6,7 +6,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
-
 """создаем базовый класс"""
 Base = declarative_base()
 
@@ -32,7 +31,7 @@ class OilPrice(Base):
     date = Column(Date)
 
 
-async def save_prices(dict_prices):
+def save_prices(dict_prices):
     """Функция для сохранения цен в базе данных"""
     with Session() as session:
         for oil_name, price in dict_prices.items():
