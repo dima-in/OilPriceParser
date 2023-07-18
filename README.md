@@ -1,77 +1,65 @@
 # OilPriceParser
 
-This project is a web scraper that retrieves and stores oil prices from a specific website. It provides an API endpoint to fetch the prices and a web interface to view and filter the saved prices.
+Это проект, который предоставляет API-интерфейс для получения и сохранения цен на масла с веб-сайта Nature Express. 
 
-### Installation
+## Установка
 
-To run the project locally, follow these steps:
+Для установки и запуска проекта необходимо выполнить следующие шаги:
 
-1. Clone the repository:
+1. Склонировать репозиторий:
 
    ```shell
    git clone https://github.com/dima-in/OilPriceParser.git
    ```
 
-2. Change into the project directory:
+2. Перейти в директорию проекта:
 
    ```shell
    cd OilPriceParser
    ```
 
-3. Install the dependencies:
+## Запуск
 
-   ```shell
-   pip install -r requirements.txt
-   ```
-
-### Usage
-
-To start the application, run the following command:
+Для запуска проекта выполните следующую команду:
 
 ```shell
 python main.py
 ```
 
-The application will be available at `http://localhost:8000` in your browser.
+## Использование
 
-### API Endpoints
+### Получение цен на масла
 
-- **GET /natureexpressprices**: Retrieves the current oil prices from the website.
+API-эндпоинт `/natureexpressprices` предоставляет возможность получить цены на масла с веб-сайта Nature Express. 
 
-### Web Interface
+Пример запроса:
 
-The web interface provides the following endpoints:
+```http
+GET /natureexpressprices
+```
 
-- **GET /entry**: Displays the initial template for the application.
+### Получение сохраненных цен на масла
 
-- **POST /viewprices**: Allows filtering and viewing the saved oil prices. The parameters for filtering include:
-  - `site`: The website to filter the prices from.
-  - `oil_name`: The name of the oil to filter.
-  - `price`: The exact price to filter.
-  - `max_price`: The maximum price to filter.
-  - `start_date`: The start date to filter.
-  - `end_date`: The end date to filter.
+API-эндпоинт `/viewprices` позволяет получить сохраненные цены на масла. Для этого необходимо отправить POST-запрос с параметрами.
 
-### Dependencies
+- `site` (строка, необязательно): URL сайта, с которого были получены цены.
+- `oil_name` (строка, необязательно): Название масла.
+- `price` (число, необязательно): Цена масла.
+- `max_price` (число, необязательно): Максимальная цена масла.
+- `start_date` (строка, необязательно): Дата начала периода, за который нужно получить цены.
+- `end_date` (строка, необязательно): Дата окончания периода, за который нужно получить цены.
 
-The project relies on the following dependencies:
+### Начальная страница
 
-- `asyncio`
-- `aiohttp`
-- `fastapi`
-- `Jinja2`
-- `pprint`
-- `time`
-- `requests`
-- `beautifulsoup4`
-- `BDalchemy`
+Доступ к начальной странице можно получить по следующим URL:
 
-These dependencies are listed in the `requirements.txt` file.
+- `/`
+- `/entry`
 
-### Contributing
+## Автор
 
-If you want to contribute to this project, feel free to submit a pull request. Please make sure to follow the established coding style and conventions.
+Этот проект был разработан и поддерживается [dima-in](https://github.com/dima-in).
 
-### Author
+## Лицензия
 
-This project was developed by [Dima](https://github.com/dima-in).
+[MIT](LICENSE)
